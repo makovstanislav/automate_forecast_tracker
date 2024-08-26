@@ -23,30 +23,31 @@ conversion.save('conversion.xlsx')
 
 print("Objective 1 ✅")
 
-# Objective 2: Копирование значений со второго листа conversion.xlsx в database.xlsx
+# Objective 2: Использование xlwings для расчета и получения значений
 
-# Загрузка conversion.xlsx с вычисленными значениями (data_only=True)
-conversion_values = openpyxl.load_workbook('conversion.xlsx', keep_vba=True, data_only=True)
-conversion_transposed = conversion_values.worksheets[1]  # Второй лист
+# Открываем файл с помощью xlwings
+wbxl = xw.Book('conversion.xlsx')
 
-wbxl=xw.Book('conversion.xlsx')
+# Выбираем второй лист
+sheet2 = wbxl.sheets['Лист2']
 
-print(wbxl.sheets['Лист2'].range('D7').value)
+# Извлечение значений из диапазона C6:F8 после автоматического пересчета формул
+calculated_values = sheet2.range('C6:F8').value
+
+# Закрытие файла, сохранение не нужно, так как значения уже извлечены
+wbxl.close()
 
 # Загрузка файла database.xlsx
 database = openpyxl.load_workbook('database.xlsx')
 database_sheet = database.active
 
-# Определение диапазона для копирования значений
-transposed_range = conversion_transposed['C6:F8']
-
 # Поиск первой пустой строки в database.xlsx
 empty_row = database_sheet.max_row + 1
 
-# Копирование значений (без формул) в database.xlsx
-for i, row in enumerate(transposed_range):
-    for j, cell in enumerate(row):
-        database_sheet.cell(row=empty_row + i, column=3 + j, value=cell.value)
+# Вставка вычисленных значений в database.xlsx
+for i, row in enumerate(calculated_values):
+    for j, value in enumerate(row):
+        database_sheet.cell(row=empty_row + i, column=3 + j, value=value)
 
 # Сохранение изменений в файле database.xlsx
 database.save('database.xlsx')

@@ -42,7 +42,15 @@ database = openpyxl.load_workbook('../real_data/database.xlsx')
 database_sheet = database.active
 
 # Поиск первой пустой строки в database.xlsx
-empty_row = database_sheet.max_row + 1
+def find_first_empty_row(sheet):
+    for row in range(1, sheet.max_row + 1):
+        if not any(cell.value for cell in sheet[row]):
+            return row
+    return sheet.max_row + 1
+
+empty_row = find_first_empty_row(database_sheet)
+print(empty_row)
+
 
 # Вставка вычисленных значений в database.xlsx
 for i, row in enumerate(calculated_values):
